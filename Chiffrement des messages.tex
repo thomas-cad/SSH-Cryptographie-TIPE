@@ -1,0 +1,128 @@
+\section{Chiffrement des messages avec ChaCha20}
+Nous allons ici nous pencher sur l'algorithme de chiffrement {\ttfamily ChaCha20}. C'est l'algorithme de chiffrement le  plus rapide, et c'est celui qui a été utilisé par défaut lorsque nous avons fait notre expérimentation. C'est pour ces deux raisons que nous avons choisi de l'étudier. \cite{cadegros_etude_2023,nir_chacha20_2015}
+
+\paragraph{Chiffrement par flot ou par blocs ?} \label{blocs}
+{\ttfamily ChaCha20} est un algorithme de chiffrement par flot. Le chiffrement du message se fait bit par bit, avec une variation de la séquence chiffrante au fur et à mesure que les bits sont modifiés. Cette catégorie d'algorithme fait opposition aux algorithmes de chiffrement par blocs, qui, comme son nom l'indique, chiffre les données par blocs de plusieurs bits, et ce toujours de la même manière. De ce fait, les algorithmes de chiffrement par flots sont plus rapides. \cite{noauthor_cryptographie_nodate}
+
+\subsection{Opérations élémentaires et initialisation}
+Les opérations utilisées ici s'appliquent sur des nombres en base 2 de 32 bits,  \textbf{que l'on dénommera \og mots \fg} pour simplifier les notations.
+
+\paragraph{Addition modulo $2^{32}$}
+L'addition se fait bit à bit, des bits de poids faibles vers les bits de poids forts. Des retenues peuvent se placer sur une colonne d'un bit de poids plus fort. Le modulo $2^{32}$ signifie que si le résultat fait plus de 32 bits, on le tronque, et on conserve un résultat sur 32 bits. En effet, on veut garder un nombre compris entre 0 et $2^{32}-1$.\\
+Exemple à petite échelle avec une addition de deux nombres en base 2 de 4 bits, modulo $2^4$:
+
+\begin{array}{@{}c@{\;}c@{}}
+   & 1\,1\,1\,\verb| |\,\verb| | \\
+   & \verb| |\,0\,1\,1\,1 \\
++  & \verb| |\,1\,0\,1\,0 \\
+\hline
+   & 1\,0\,0\,0\,1 \\
+\hline
+   &  \verb| |\,0\,0\,0\,1 \\
+\end{array}
+
+\paragraph{OU exclusif} \label{xor}
+Cette opération est plus simplement appelée XOR, de symbole $\bigoplus$
+On va là aussi effectuer une opération bit à bits. En prenant le n-ième bit de chaque mot, appelons les $A_n$ et $B_n$, on leur applique le OU exclusif dont la table de vérité est la suivante:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{cccc}
+        $A_n$ & $B_n$ && Bit chiffré \\
+        0 & 0 && 0 \\
+        0 & 1 && 1 \\
+        1 & 0 && 1 \\
+        1 & 1 && 0 \\
+    \end{tabular}
+    \caption{Table de vérité du XOR}
+\end{table}
+
+\paragraph{Rotation de n bits vers la gauche}
+Cette opération, notée $mot<<<n$, permet de décaler chaque bit de $n$ bits, des bits de poids faibles vers les bits de poids forts vers les bits de poids forts. Les bits dépassant les bits de poids forts reviennent vers les bits de poids faibles. Exemple à petite échelle, avec un mot de 4 bits: $1011<<<3=1101$.
+
+\paragraph{Le petit boutisme} \label{boutisme} 
+Le boutisme désigne l'ordre dans lequel sont placés en mémoire les octets d'un nombre entier codé en binaire. Le petit boutisme s'oriente vers le placement des octets de poids faibles en premier. Pour l'entier $1110506459$, représenté sur 4 octets en notation hexadécimale par '42 30 FB DB', on pourra lire, dans l'ordre des cases mémoires, 'DB FB 30 42'. \cite{noauthor_definition_nodate}
+
+\subsubsection{Quart de tour}
+Le quart de tour est l'opération élémentaire de {\ttfamily ChaCha20}. Soit 4 mots $a$, $b$, $c$, $d$. On peut décomposer le quart de tour en quatre phases très similaires. Ces dernières utilisent les opérations élémentaires décrites précédemment. Par simplicité de lecture, nous allons regrouper ces quatre phases dans le tableau suivant:
+
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{ccccccc}
+        1 && 2 && 3 && 4 \\
+        $a=a+b$ && $c=c+d$ && $a=a+b$ && $c=c+d$ \\
+        $d=a \bigoplus d$ && $b=b \bigoplus c$ && $d=a \bigoplus d$ && $b=b \bigoplus c$ \\
+         $d=d<<<16$ && $b=b<<<12$ && $d=d<<<8$ && $b=b<<<7$ \\
+    \end{tabular}
+    \caption{Le quart de tour, opération élémentaire de ChaCha20 \cite{nir_chacha20_2015}}
+    \label{tab:my_label}
+\end{table}
+
+\subsubsection{État interne}
+ChaCha20 possède ce que l'on appelle un état interne. Celui-ci peut être visualisé sous forme de matrice 4x4, où chaque élément représente un mot. On va pouvoir effectuer une opération quart de tour sur 4 de ces 16 mots, que l'on notera {\ttfamily QUART\verb|_|TOUR(x, y, z, t)}, où $x$, $y$, $z$, $t$ représentent l'indice du mot. A la fin du quart de tour, seule les mots d'indice $x$, $y$, $z$, $t$ sont modifiés, les autres restent inchangés. \cite{nir_chacha20_2015} \\
+La matrice suivante représente les indices de mot:
+\[ \left(
+\begin{array}{cccc}
+1 & 2 & 3 & 4 \\
+5 & 6 & 7 & 8 \\
+9 & 10 & 11 & 12 \\
+13 & 14 & 15 & 16
+\end{array} \right) \] \label{indices}
+
+\subsubsection{Initialisation de l'état interne}
+{\ttfamily ChaCha20} a besoin de 4 éléments pour initialiser son état interne \cite{nir_chacha20_2015} :
+\begin{itemize}
+    \item Une constante de 128 bits que l'on découpera en mots C1, C2, C3 et C4. Cette constante est toujours identique et vaut, en hexadécimal 0x61707865, 0x3320646e, 0x79622d32, 0x6b206574.
+    \item Une clé de 256 bits, qu'on lira selon l'orientation du petit-boutisme (cf. §\ref{boutisme}) et que l'on découpera en mots K1, K2, K3, K4, K5, K6, K7, K8
+    \item 32 bits servant de compteur, initialisés à 0. Ce sera un mot nommé CT.
+    \item Un nonce (Number Used Once), c'est à dire un entier unique et temporaire, de 96 bits que l'on découpera en mots N1, N2, N3
+\end{itemize}
+Ces éléments vont permettre d'initialiser l'état interne de {\ttfamily ChaCha20}. Ainsi, on aura la matrice:
+\begin{center}
+\[ $E_d=$ \left(
+\begin{array}{cccc}
+C1 & C2 & C3 & C4 \\
+K1 & K2 & K3 & K4 \\
+K5 & K6 & K7 & K8 \\
+CT & N1 & N2 & N3
+\end{array} \right) \]
+\end{center}
+
+\subsection{Chiffrement et déchiffrement}
+Le but est d'obtenir une suite chiffrée de même longueur que les données à chiffrer. On va procéder par bloc de 64 octets.
+
+\subsubsection{Création d'une séquence chiffrante}
+On va appliquer sur l'état interne 8 fois la fonction {\ttfamily QUART\verb|_|TOUR(x, y, z, t)}, avec à chaque fois des indices différents. Visuellement, par rapport à notre matrice, les indices (cf. §\ref{indices}) de chaque colonne et de chaque diagonale (gauche-haut $\rightarrow$ droite-bas) vont être passés en paramètre dans la fonction {\ttfamily QUART\verb|_|TOUR(x, y, z, t)}. En clair, les appels effectués seront: 
+\begin{enumerate}
+    \item {\ttfamily QUART\verb|_|TOUR(1,5,9,13)}
+    \item {\ttfamily QUART\verb|_|TOUR(2,6,10,14)}
+    \item {\ttfamily QUART\verb|_|TOUR(3,7,11,15)}
+    \item {\ttfamily QUART\verb|_|TOUR(4,8,12,16)}
+    \item {\ttfamily QUART\verb|_|TOUR(1,6,11,16)}
+    \item {\ttfamily QUART\verb|_|TOUR(2,7,12,13)}
+    \item {\ttfamily QUART\verb|_|TOUR(3,8,9,14)}
+    \item {\ttfamily QUART\verb|_|TOUR(4,5,10,15)}
+\end{enumerate}
+On répète cette opération 10 fois, et on obtient la matrice $E_f$ avec des valeurs totalement différentes de celles que l'on avait à la base. On additionne ensuite les matrices pour obtenir $M= E_d+E_f$, là encore modulo $2^{32}$ (on rappelle qu'additionner deux matrices revient à additionner les nombres de même indice).
+On peut enfin concaténer les mots de la matrice, dans l'ordre de leurs indices. Chaque mot est rangé selon le petit-boutisme. On obtient alors une séquence chiffrante, qui peut être aussi bien obtenue par la machine qui chiffre que par la machine qui déchiffre \cite{nir_chacha20_2015} \\
+
+\subsubsection{Chiffrement des données}
+Une fois la séquence chiffrante obtenue, on va, par souci d'économie de mémoire, directement chiffrer les données à l'aide de cette séquence. Cette dernière étant indépendante des données, il n'y aurait pas de sens à l'envoyer. A partir de cette séquence, on va simplement chiffrer les données en effectuant un XOR bit à bit. \\
+
+On incrémente le compteur et on répète cette opération n fois, où $n= \lfloor{\frac{T}{64}}\rfloor$ avec T le nombre de bits du message à chiffrer. Si le nombre de bits du message à chiffrer n'est pas un multiple de 64, alors il reste encore quelques bits (moins de 64) non chiffrés. On incrémente encore le compteur et on recrée un bloc de chiffrement, qui nous donne une séquence chiffrante. On effectue enfin le XOR bit à bit avec les bits restants. Ainsi, toutes les données sont chiffrées.
+
+\subsubsection{Déchiffrement}
+Le déchiffrement se déroule de la même manière que pour le chiffrement. On calcule la séquence chiffrante par blocs de 64 octets. Seule différence, au lieu de chiffrer le message en clair avec le XOR, on va déchiffrer le message chiffré avec le XOR. En effet $(B \bigoplus S) \bigoplus S = B$. \cite{nir_chacha20_2015} \\
+On peut montrer cela avec une table de vérité :
+\begin{table}[H]
+    \centering
+    \begin{tabular}{c|c|c|c||c}
+        Bit en clair & Bit chiffrant & Bit chiffré & Bit chiffrant & Bit déchiffré\\
+        0 & 0 & 0 & 0 & 0\\
+        0 & 1 & 1 & 1 & 0\\
+        1 & 0 & 1 & 0 & 1\\
+        1 & 1 & 0 & 1 & 1\\
+    \end{tabular}
+    \caption{Table de vérité du XOR}
+\end{table}

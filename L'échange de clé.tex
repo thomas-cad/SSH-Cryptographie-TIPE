@@ -1,0 +1,128 @@
+%Introductions aux principes de cryptographie :
+\section{L'échange de clé}
+
+\subsection {Définitions}
+\paragraph{}
+La sécurité des algorithmes de cryptographie ne repose pas contrairement à la pensée populaire sur le secret du mécanisme, mais au contraire sur sa désignation "open source". Il s'agit du principe de Kerchoffs\cite{fouque_cryptographie_2003}. Un système dit open source rend public son fonctionnement. Cela permet à la communauté mondiale de pouvoir tester la sécurité de ses algorithmes. Ainsi, la sécurité repose sur un autre élément essentiel: les clés de cryptage.\\
+
+\paragraph{Cryptographie symétrique} \label{crypto symétrique}
+Les algorithmes cryptographiques symétriques permettent de chiffrer des informations en utilisant une unique clé, qui permet à la fois de chiffrer et déchiffrer. Un problème se pose alors : l'échange de la clé entre deux interlocuteurs, de manière sécurisée.\\
+Le chiffrement symétrique repose sur des algorithmes faisant appel à des opérations arithmétiques basiques précablées, dans des processeurs possédant une architecture RISC (Reduced Instruction Set Computer)\cite{fouque_cryptographie_2003}, c'est à dire les processeurs présents dans la majorité des systèmes. Ils permettent ainsi de crypter des messages plus rapidement que les algorithmes cryptographiques asymétriques. \\
+
+\paragraph{Cryptographie asymétrique}
+Contrairement à la cryptographie symétrique, la cryptographie asymétrique utilise quatre clés. Chaque entité en possède deux : une clé publique, connue de tous, et une clé privée qu'elle garde secrète. L'avantage majeur de la cryptographie asymétrique est qu'elle est à double face. En prenant les personnages Alice et Bob, représentant chacun une machine, nous avons \cite{noauthor_cryptographie_nodate-1} :
+\begin{description}
+    \item[Chiffrement des messages] Pour que Alice envoie un message à Bob, elle utilise la clé publique de Bob pour chiffrer ce message. Bob, et uniquement lui, est en mesure de déchiffrer le message, grâce à sa clé privée. Il n'y a donc pas de problème de transmissio de clé.
+    \item[Authentification d'une machine] On peut appliquer l'opération inverse pour qu'une machine prouve son authenticité, c'est-à-dire que personne ne puisse se faire passer pour elle. Pour qu'Alice puisse prouver à Bob, généralement, Bob devra envoyer un message quelconque à Alice. Cette dernière chiffrera ce message (on dira plutôt signer un message), avec sa clé privée qu'elle envoie à Bob. Vu qu'il possède la clé publique d'Alice, il pourra alors déchiffrer le message. Si le message reçu est identique à celui envoyé, alors Bob peut être certain que le message provient de d'Alice, car seule Alice est propriétaire de sa clé privée.
+\end{description}
+
+\paragraph{}
+Ces algorithmes répondent au principe de sécurité sémantique\cite{castagnos_cours_2023}. Considérons un attaquant interceptant un message crypté: pour que l'algorithme réponde à ce principe, il doit lui être impossible d'extraire une information du message en clair en un temps humainement raisonnable. Pour crypter les informations, la clé publique peut être transmise à l'interlocuteur en clair sans remettre en cause la sécurité, tandis que la clé privée devra rester secrète pour garantir la sécurité de la communication.\\
+
+\subsection {Mise en place d'un chiffrement symétrique}
+L'utilisation d'un algorithme symétrique dans un protocole de communication semble ainsi plus adaptée, cependant, les algorithmes asymétriques leurs sont complémentaires. Leurs clés publiques permettent de chiffrer une information sans avoir partagé une clé commune à deux interlocuteurs.//
+Le protocole de chiffrement utilisé dans notre transmission SSH est le ChaCha20. Son algorithme cryptographique utilise des clés symétriques de 256 bits\cite{serrano_chacha20poly1305_2022}. L'échange de ces clés entre le client et le serveur est réalisé par l'algorithme de Diffie et Hellman.
+
+
+%Algorithme de Diffie Hellman :
+
+\subsection{Algorithme de Diffie et Hellman}
+Le but de l'échange de Diffie-Hellman est d'obtenir un secret partagé K.
+\subsubsection{Notion de groupe} \label{Notion de groupe}
+Commençons par définir la notion de groupe, il s'agit d'un ensemble muni d'une loi interne $\times$ telle que : (notons G un groupe)\cite{noauthor_groupe_nodate}
+\begin{itemize}
+    \item $\times$ est associatif, soit $\forall x,y,z \in G \: : \: x\times (y\times z)=(x\times y)\times z)$
+    \item $G$ contient un élément neutre $e$ tel que $\forall x \in G \: x\times e = e \times x = x$
+    \item Tout $x \in G$ possède un symétrique $y$ tel que $x\times y=y\times x =e$\\
+\end{itemize}
+
+Un ensemble $H$ est un sous groupe de $G$ si et seulement si \cite{noauthor_sous-groupe_nodate}:
+\begin{itemize}
+    \item L'élément neutre de G est contenu dans H : $e\in H$
+    \item Soit $x,y \in H$ et $y^{-1}$ le symétrique de $y$ alors $x\times y^{-1} \in H$\\
+\end{itemize}
+
+Considérons l'ensemble $\mathbb{Z}$ muni d'une loi multiplicative $\times$. La relation d'équivalence de $\mathbb{Z}$ entre deux nombres relatifs $x,y$ est vraie si et seulement si l'entier relatif $n$ divise $x-y$. Ainsi, le sous ensemble de $\mathbb{Z}$ noté $\mathbb{Z}/n\mathbb{Z}$ représente l'ensemble d'équivalence de $x$, soit les restes de la division euclidienne de $x$ par $n$ soit : $\{0,1,...,n-1\}$.\cite{polytechnique_groupepdf_nodate}\\
+
+Considérons l'ensemble $(\mathbb{Z}/p\mathbb{Z}) \backslash \{0\}$, ainsi que la loi suivante avec $x$ et $y$ des éléments du groupe : $(x \: mod \: p)\times(y \: mod \: p) = xy \: mod \: p$. Rappelons le théorème de Bezout, soit $k,p\in \mathbb{Z}$ alors $k$ et $p$ sont premiers entre eux si et seulement si il existe un couple d'entiers relatifs $(u,v)$ tel que $uk + vb=1$. Ainsi, pour que chaque ensemble $(\mathbb{Z}/p\mathbb{Z} \backslash \{0\}, \times)$ possède un inverse : il faut que $p$ soit un nombre premier.\cite{polytechnique_groupepdf_nodate}\\
+
+Un groupe est cyclique s'il existe un élément $g$ du groupe tel que pour tout élément $y$ du groupe, il existe $k\in \mathbb{Z}$ tel que $y=g^k$. En appliquant le théorème de Bezout, le groupe ayant pour générateur $g$ est donc cyclique si et seulement si $g$ et $p$ sont premiers entre eux. Il s'agit d'un groupe fini.\\
+
+Ainsi, nous disposons d'un sous groupe de $(\mathbb{Z}/p\mathbb{Z} \backslash \{0\}, \times)$ de générateur $g$ noté $<g>=\{a^k,k\in \mathbb{Z} \}$, l'ordre de ce sous-groupe étant fini son cardinal correspond à l'ordre du groupe noté $o (g)$,\cite{ellipses_groupes_nodate} par définition $o(g):=min\{ m \in \mathbb{N^*}|g^m \: mod \: n = 1 \}$.\\
+
+\subsubsection{Problème de Diffie et Hellman}
+L'algorithme de Diffie et Hellman repose sur des calculs par des puissances ainsi que par des opérations de congruence, le principe de sécurité sémantique repose sur le problème du logarithme discret.\\
+
+Considérons un groupe cyclique $G=<g>$ d'ordre $n$ de générateur $g$. Ainsi tout élément $x$ de $G$ peut s'écrire sous la forme $x=g^\alpha$ avec $1\leq \alpha \leq n$ ainsi $\alpha$ est le logarithme discret de $x$ en base $g$ noté $log_g(x)$.\\
+
+Considérons le nombre $g^{ab} \: mod  \: n$, nous cherchons à retrouver $ab$ que nous notons $y$, pour cela, utilisons l'algorithme "baby-step giant-step"\cite{gluher_probleme_nodate}, notons $h=g^y$, soit $m=\lceil \sqrt{n} \rceil$ le premier entier supérieur à $\sqrt{n}$ :
+
+\begin{algorithm}[H]
+
+    \caption{baby-step giant-step}
+
+    \KwData{Valeurs de $g$ et $m=\lceil \sqrt{n} \rceil$}
+    \KwResult{$y$}
+    
+    $i = 1$\;
+    \While{$i \leq m$}{
+        Placer $g^i \: mod \: n$ dans la table T\;
+        i++\;
+    }
+    $j = 1$\;
+    \While{$j \leq m$ ET $h \times g^{j \times -m} \: mod \: n$ n'est pas présent dans T}{
+        j++\;
+    }
+    \textbf{Retourner} $y = i+jm$\;
+    
+\end{algorithm}
+
+On obtient $g^i=h \times g^{-jm}$ on a donc $y=i+jm$. Cet algorithme est le plus puissant connu à ce jour pour résoudre le problème du logarithme discret\cite{centre_henri_lebesgue_david_2017}. Il possédera un temps d'exécution de l'ordre de m, il met en avant la nécessité de posséder un entier g très grand, ceci dans le but de rendre impossible la résolution de cet algorithme dans un temps humainement concevable. L'Agence nationale de la sécurité des systèmes d’information imposait en 2020 une taille de minimum d'ordre de groupe de $3072 bits$ pour les systèmes devant dépasser l'an 2030\cite{anssi_guide_2020}.
+
+\subsubsection{Échange d'un secret avec Diffie et Hellman} \label{Échange d'un secret avec Diffie et Hellman}
+La méthode cryptographique de Diffie et Hellman est utilisée pour permettre à deux personnes de s'échanger un nombre secret sans le divulguer lors des échanges. Pour commencer l'échange, les deux interlocuteurs doivent se mettre d'accord sur un entier de très grande taille. Ce nombre peut être généré selon deux types de groupes:
+\begin{enumerate}
+    \item Les corps finis, qui correspondent aux groupes cycliques. Dans ce cas, ils s'échangent le générateur du groupe et l'ordre du groupe.
+    \item Les courbes elliptiques, que nous n'étudierons pas en raison de la complexité des points mathématiques abordés.
+\end{enumerate}
+
+Soit l'échange du secret entre deux personnes (Alice et Bob) :
+
+\begin{table}[H]
+    \centering
+        \begin{tabular}{|c|c|c||c|c|c|}
+            \hline
+            \multicolumn {3}{|c||}{Alice} & \multicolumn {3}{c|}{Bob}\\
+            \hline
+            Secret & Calcul & public & public & Calcul & Secret\\
+            \hline
+            &&$p,g$&$p,g$&&\\
+            \hline
+            $a$& & & & &$b$\\
+            \hline
+            &$A = g^a \: mod \: p$& $A$ & reçoit $A$ & &\\
+            \hline
+            &&reçoit $B$ & $B$ & $B = g^a \: mod \: p$ &\\
+            \hline
+            & $K = B^a \: mod \: p=g^{ab} \: mod \: p$ & & & $K = A^b \: mod \: p=g^{ab} \: mod \: p$ &\\
+            \hline
+        \end{tabular}
+        \caption{Algorithme de Diffie et Hellman}
+\end{table}
+
+A la fin de cet algorithme, Alice et Bob détiennent le même secret $g^{ab} \: mod \: p$.\\
+Supposons qu'un attaquant écoute les transmissions entre Alice et Bob, il se retrouve en possession de 4 éléments $g,p,A,B$. Pour pouvoir être en mesure de prendre connaissance de la clé secrète, il doit être capable de résoudre une des deux équations suivantes :
+
+\[g^a \: mod \: p=A \: mod \: p \qquad OU \qquad g^b \: mod \: p=B \: mod \: p\]
+
+Avec $b$ et $a$ les inconnus du problème. La résolution de ces équations fait intervenir le problème du logarithme discret, pour garantir la sécurité de la clé secrète, il est donc indispensable d'utiliser des nombres d'un ordre de grandeur très grand.
+
+\subsubsection{Diffie et Hellman appliqué au SSH}
+\paragraph{}
+Dans notre étude, nous nous intéressons à la méthode d'échange de clé {\ttfamily diffie-hellman-group-exchange}, intégrée au SSH.
+
+\paragraph{}
+Le serveur et le client se mettent d'accord sur le groupe à utiliser. Pour ce faire, le serveur possède une liste de nombres premiers dits sûrs; renouvelée fréquemment en fonction du réglage du serveur SSH, il choisit le nombre premier $p=2q+1$ tel que $q$ soit sûr. Le nombre $q$ est généré aléatoirement et $p$ est calculé, cette opération est répétée jusqu'à ce que $p$ soit premier\cite{provos_openssh_nodate}. L'ordre du sous groupe généré par le générateur $g$ devra être compris entre des nombres s'écrivant entre $1024$ et $8192$ bits. De plus, l'ordre ne peut pas être un facteur d'un "petit" nombre premier, il devra être de $q$ ou $p-1$ étant donné que $p$ et $q$ sont premiers. Une fois que le serveur possède les nombres $g$ et $p$ correspondants aux différents critères, il les transmet par une seconde trame au serveur\cite{friedl_echange_nodate}.
+
+\paragraph{}
+Le serveur et le client génèrent leurs nombres secrets $a$ et $b$. Afin d'appartenir au sous-groupe choisi par le serveur, ces nombres doivent respecter le critère suivant: $1<a,b<\frac{p-1}{2}$. Cette limite haute provient du fait que le plus petit ordre possible est $q$ et $q=\frac{p-1}{2}$\cite{friedl_echange_nodate}. L'échange se passe ensuite comme décrit précédemment (cf. §\ref{Échange d'un secret avec Diffie et Hellman}

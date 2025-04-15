@@ -1,0 +1,35 @@
+% Ajouter une page blanche avec une image en haut à gauche et une info en haut à droite
+\thispagestyle{empty} % Supprimer les numéros de page et les en-têtes/notes de bas de page
+
+\begin{figure}[t]
+    \begin{minipage}{0.2\textwidth}
+        \includegraphics[width=\textwidth]{images/logo_telecom.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.5\textwidth}
+        \begin{flushright}
+            \textbf{Télécom Saint-Etienne}\\
+            École affiliée institut mines télécom\\
+            École interne à l'université Jean-Monnet\\[10pt]
+            \today
+        \end{flushright}
+    \end{minipage}
+\end{figure}
+
+\begin{center}
+    \huge{\textbf{Cryptographie du protocole SSH}}\\
+    \large Projet TIPE 2023 - CITISE 2\\[5pt]
+    \normalsize 
+    Thomas \textsc{Cadegros}, \texttt{thomas.cadegros@telecom-st-etienne.fr}\\
+    Sylvain \textsc{Prost}, \texttt{sylvain.prost@telecom-st-etienne.fr}
+\end{center}
+
+\section*{Résumé}
+Le protocole Secure Shell (SSH) est utilisé pour la communication entre un serveur et un client. Nous le retrouvons dans plusieurs services comme GitHub, il permet de chiffrer les échanges entre le client et le serveur ainsi que de les authentifier. Plusieurs méthodes cryptographiques interviennent pour mettre en place le chiffrage. A partir de l'étude des trames de la connexion d'un client à un serveur, ce document décrypte les différentes étapes amenant à des échanges cryptés et décrit leurs fonctionnements. Il y est notamment décrit l'échange de clés permettant la mise en place de la cryptographie symétrique, avec la description du fonctionnement de l'échange de clés de Diffie-Hellman. L'authentification du client et du serveur à l'aide de la cryptographie asymétrique, avec l'étude du chiffrement RSA, y est aussi décrite. Finalement, il y est décrit le chiffrement des données par la cryptographie symétrique ainsi que le fonctionnement du chiffrement ChaCha20.
+
+\motscles{SSH, Secure Shell, Cryptographie, Cryptographie Symétrique, Cryptographie Asymétrique, Echange de Diffie et Hellman, RSA, ChaCha20}
+
+\section*{Abstract}
+The Secure Shell (SSH) protocol is used to communicate between a server and a client. For example, GitHub uses SSH to communicate with your computer. The SSH allows to encode frames and authenticate the server and the client. With the frames of the connection of a client to a server, this document decrypts the different steps to implement the symmetric cryptography. Firstly, the operation of the key exchange to achieve this goal and the operation of the Diffie-Hellman key exchange. Secondly, the authentication of the server and the client is discribed with the operation of the RSA encryption. Finally, the operation of symetric encryption of the frames and ChaCha20 encryption is studied.
+
+\keywords{SSH, Secure Shell, Cryptography, Symmetric Cryptography, Asymmetric Cryptography, Diffie-Hellman exchange, RSA, ChaCha20}

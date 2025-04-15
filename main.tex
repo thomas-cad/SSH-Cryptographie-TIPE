@@ -1,0 +1,54 @@
+\documentclass[10pt]{report}
+
+\include{package}
+
+%bib
+\addbibresource{bibliographie.bib}
+
+\begin{document}
+
+%Page de garde
+\include{title_page}
+
+\emptypage
+
+%Table des matières
+\tableofcontents
+
+% Insérer une page blanche
+\newpage
+\thispagestyle{empty}
+\mbox{}
+
+%CONTENU
+
+\include{Introduction}
+\include{Connexion et échange de clé}
+\include{Authentification chiffrement}
+\include{Bilan_Projet}
+\include{Conclusion}
+
+% Insérer une page blanche
+\newpage
+\thispagestyle{empty}
+\mbox{}
+
+%Bibliographie
+\printbibliography
+
+\listoffigures
+
+% Insérer une page blanche
+\newpage
+\thispagestyle{empty}
+\mbox{}
+
+\newpage
+\thispagestyle{empty}
+\mbox{}
+
+\include{Abstract}
+
+\thispagestyle{empty}
+
+\end{document}

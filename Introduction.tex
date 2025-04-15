@@ -1,0 +1,24 @@
+\chapter{Introduction}
+\paragraph{}
+Ces 200 dernières années, l'humanité s'est plus développée qu'elle ne l'a jamais fait dans toute son histoire. De la première révolution industrielle avec l'exploitation du charbon permettant l'avènement des machines à vapeurs, en passant par la deuxième avec l'exploitation du pétrole démocratisant le transport, la fin du XX$^{e}$ siècle marque la dernière révolution\cite{jancovici_monde_2021}. Les nouvelles technologies d'information et de communication, permettant la transmission quasi-instantanée des données, a fait émerger Internet, une des plus grandes inventions de l'humanité.\\
+
+Internet repose sur deux éléments: les infrastructures réseaux, et les protocoles de communication. Ces derniers définissent des règles précises concernant l'interaction entre des machines de l'infrastructure réseau. Les serveurs nous fournissent les services que nous utilisons au quotidien. Ces derniers étant dispersés sur la planète, il y a un besoin évident de pouvoir s'y connecter à distance, en tant qu'administrateur, non pas pour utiliser les services fournis, mais plutôt pour les paramétrer, échanger des fichiers, les mettre à jour, etc... Nous avons donc besoin des protocoles, et {\ttfamily telnet} et {\ttfamily rlogin} répondant aux besoins cités précédemment.\\
+
+Mais la sécurité des communications est un enjeu majeur de l'ère du numérique, et les protocoles venant d'être cités ne répondent pas à ce critère. En effet, avec {\ttfamily telnet}, mis au point en 1969, toutes les informations sont transmises en clair sur le réseau. Lorsque que l'administrateur se connecte au serveur en saisissant identifiant et mot de passe, ces informations peuvent être saisies par un tiers qui espionne le réseau. Celui-ci peut alors prendre le contrôle du serveur. \cite{noauthor_attaques_nodate}\\
+
+C'est pour ces problèmes de sécurité que le protocole SSH (Secure Shell) a été développé en 1995, puis normalisé dans sa version 2.0 en janvier 2006. SSH permet alors de répondre aux besoins cités précédemment, tout en assurant la sécurité de la communication au travers de trois points \cite{hajjeh_ibrahim_protocole_2006}:
+
+\begin{itemize}
+    \item[\textbullet] {\bfseries L'authentification: }  Pour que chaque machine soit sûre de communiquer avec celle qu'elle veut, et pas une autre machine pirate;
+    \item[\textbullet] {\bfseries La confidentialité des données: } Pour que personne ne puisse voir les données en clair;
+    \item[\textbullet] {\bfseries L'intégrité des données: } Pour être sûr que les données n'ont pas été altérées, accidentellement ou par un tiers.
+\end{itemize}
+
+La version 2 de SSH peut se décomposer en 3 couches \cite{lonvick_secure_2006-1}:
+\begin{enumerate}
+    \item {\bfseries Transport: } Assure l'authentification du serveur, la confidentialité et l'intégrité des données.
+    \item {\bfseries Authentification: } Assure l'authentification du client. Est exécutée par dessus la couche Transport.
+    \item {\bfseries Connexion: } Permet de multiplexer les services offerts par SSH (accès au shell, transfert de fichiers, tunneling, redirection de port) dans un seul canal sécurisé \cite{hajjeh_ibrahim_protocole_2006}. Est exécutée par dessus la couche Transport.
+\end{enumerate}
+
+Dans ce rapport, nous ne nous intéresserons qu'aux deux premières couches, en analysant la cryptographie mise en jeu. Nous commencerons par étudier la phase de connexion, qui comporte l'analyse des trames et l'échange de clé, puis nous nous pencherons sur l'authentification du serveur et du client ainsi que sur le chiffrement des données.

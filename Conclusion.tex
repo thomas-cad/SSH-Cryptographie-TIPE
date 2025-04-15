@@ -1,0 +1,12 @@
+\chapter{Conclusion}
+Au cours de ce rapport, nous avons pu voir les deux types de cryptographie (asymétrique puis symétrique) de manière concrète, implémentées dans le protocole SSH, mais aussi tout le déroulement de ce dernier.\\
+
+En commençant par l'analyse des trames, nous avons observé les échanges le réseau au travers des différentes couches du modèle OSI. Durant la phase de hand-shake, chaque partie est arrivée aux mêmes choix d'algorithmes, puis à la même clé cryptographique, sans échanger \og en clair \fg ces informations.\\
+
+Il a été montré que l'algorithme de Diffie-Hellman permet d'échanger cette clé de manière sécurisée, au travers de paramètres privés et publics. Les opérations mathématiques et l'ordre de grandeur des nombres impliqués dans cet échange sont tels qu'il est impossible pour un attaquant de deviner le secret échangé en un temps raisonnable: c'est le problème du logarithme discret. La génération des paramètres publics fait intervenir la notion de groupe cyclique.\\
+
+Les algorithmes cryptographiques asymétriques permettent aussi bien de chiffrer des données que d'authentifier une machine, bien que l'authenticité des clés publiques ne puisse pas toujours être garantie. Le chiffrement RSA par l'arithmétique modulaire et le problème de factorisation de grands nombres premiers, permettent par des clés publiques et privées d'authentifier le serveur et le client.\\
+
+La sécurité avec les algorithmes cryptographiques symétriques lors de la transmission de la clé est garanti par l'échange de Diffie-Hellman. Avec le chiffrement symétrique, il est possible au travers d'opérations simples de chiffrer des données de manière très efficaces. L'algorithme {\ttfamily ChaCha20} offre en particulier une belle efficacité au niveau mémoire.\\
+
+Avec les recherches menées sur les ordinateurs quantiques, des prouesses pourraient être réalisées. Ce type d'architecture offre une puissance de calcul nettement supérieure à celle des ordinateurs à architecture classique, et seraient seraient à même de réduire à néant la sécurité des algorithmes cryptographiques. Nous pouvons alors nous interroger sur le devenir de la sécurité informatique, lorsque les ordinateurs quantiques seront opérationnels pour de telles applications.

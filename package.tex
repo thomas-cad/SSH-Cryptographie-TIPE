@@ -1,0 +1,115 @@
+%Figures
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{eso-pic}
+
+%Taille marges
+\usepackage{geometry}
+\geometry{hmargin=2.5cm,vmargin=2.5cm}
+
+%Langue FR
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage{lipsum}
+
+%Ligne titre
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+
+%Réglage header & footer
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhead[L]{\rightmark}
+\fancyhead[R]{}
+\fancyfoot[L]{Thomas \textsc{Cadegros}, Sylvain \textsc{Prost}}
+\fancyfoot[R]{\thepage}
+\fancyfoot[C]{}
+\renewcommand{\footrulewidth}{1pt}
+\renewcommand{\headrulewidth}{1pt}
+
+% table des matières par chapitre
+\usepackage[french]{minitoc} 
+
+%Pour insérer des liens
+\usepackage{hyperref}
+
+%Insérer du code
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+%IEEE Bib
+\usepackage[style=ieee, backend=biber]{biblatex}
+
+%intervalle d'entiers maths
+\usepackage{stmaryrd}
+
+%Notation ensembles maths
+\usepackage{amssymb}
+
+%Algorithmes
+\usepackage[ruled,lined]{algorithm2e}
+\SetKwInput{KwRes}{R\'esultat}%
+\SetKwIF{Si}{SinonSi}{Sinon}{si}{alors}{sinon si}{sinon}{fin si}%
+\SetKwFor{Tq}{tant que}{faire}{fin tq}%
+
+%Commentaires de plusieurs lignes
+\usepackage{verbatim}
+
+%Réglages titres chapitre
+\usepackage{titlesec, blindtext, color}
+\definecolor{gray75}{gray}{0.75}
+\newcommand{\hsp}{\hspace{20pt}}
+\titleformat{\chapter}[hang]{\Huge\bfseries}{\thechapter\hsp\textcolor{gray75}{|}\hsp}{0pt}{\Huge\bfseries}
+
+%Barres laterales
+\usepackage{framed}
+\renewenvironment{leftbar}{%
+  \def\FrameCommand{\vrule width 0.4pt \hspace{10pt}}%
+  \MakeFramed {\advance\hsize-\width \FrameRestore}}%
+ {\endMakeFramed}
+
+%Inserer une page blanche
+\usepackage{afterpage}
+\newcommand\emptypage{
+    \null
+    \thispagestyle{empty}
+    \addtocounter{page}{-1}
+    \newpage
+    }
+
+%Pour aligner des trucs par la droite (addition posée)
+\usepackage{amsmath}
+
+%Abastract
+\newcommand{\motscles}[1]{\vspace{.2cm}\noindent{\large{\bf Mots-Clés:}} #1\\}
+\newcommand{\keywords}[1]{\vspace{.2cm}\noindent{\large{\bf Keywords:}} #1\\}
+
+\begin{comment}
+
+    
+\end{comment}
